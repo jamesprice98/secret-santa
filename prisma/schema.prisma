@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Participant {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+
+  // Spouse relationships (as participant1)
+  spousePairs1 SpousePair[] @relation("Participant1")
+  // Spouse relationships (as participant2)
+  spousePairs2 SpousePair[] @relation("Participant2")
+
+  // Assignments where this person is the giver
+  assignmentsGiven Assignment[] @relation("Giver")
+  // Assignments where this person is the receiver
+  assignmentsReceived Assignment[] @relation("Receiver")
+
+  @@index([email])
+  @@index([phone])
+}
+
+model SpousePair {
+  id            String   @id @default(cuid())
+  participant1Id String
+  participant2Id String
+  createdAt     DateTime @default(now())
+
+  participant1 Participant @relation("Participant1", fields: [participant1Id], references: [id], onDelete: Cascade)
+  participant2 Participant @relation("Participant2", fields: [participant2Id], references: [id], onDelete: Cascade)
+
+  // Ensure unique pairs (A-B is same as B-A)
+  @@unique([participant1Id, participant2Id])
+  @@index([participant1Id])
+  @@index([participant2Id])
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  giverId     String
+  receiverId  String
+  eventId     String?  // For future multi-event support
+  createdAt   DateTime @default(now())
+
+  giver    Participant @relation("Giver", fields: [giverId], references: [id], onDelete: Cascade)
+  receiver Participant @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([giverId, eventId])
+  @@index([giverId])
+  @@index([receiverId])
+  @@index([eventId])
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
