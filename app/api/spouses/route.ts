@@ -12,7 +12,11 @@ export async function GET() {
         participant2: true,
       },
       orderBy: { createdAt: 'desc' },
-    })
+    }) as Array<{
+      id: string
+      participant1: { id: string; name: string }
+      participant2: { id: string; name: string }
+    }>
 
     return NextResponse.json({
       spousePairs: spousePairs.map((sp) => ({
