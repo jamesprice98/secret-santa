@@ -23,11 +23,20 @@ function getPrismaClient() {
   // Log for debugging
   console.log('Initializing Prisma with DATABASE_URL:', connectionString.substring(0, 50) + '...')
   
-  // Ensure it's not localhost
-  if (connectionString.includes('localhost') || connectionString.includes('127.0.0.1')) {
-    console.error('ERROR: DATABASE_URL points to localhost!')
-    console.error('Full DATABASE_URL:', connectionString)
-    throw new Error('DATABASE_URL cannot point to localhost in production')
+  // Ensure it's not localhost in production runtime (but allow during build)
+  // During build, Next.js may use a local DATABASE_URL for static generation
+  // We only enforce this check at actual runtime in Vercel
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                      process.env.NEXT_PHASE === 'phase-development-build' ||
+                      !process.env.VERCEL_ENV
+  
+  if ((connectionString.includes('localhost') || connectionString.includes('127.0.0.1')) && !isBuildTime) {
+    // Only throw at runtime in Vercel, not during build
+    if (process.env.VERCEL) {
+      console.error('ERROR: DATABASE_URL points to localhost in production!')
+      console.error('Full DATABASE_URL:', connectionString)
+      throw new Error('DATABASE_URL cannot point to localhost in production')
+    }
   }
   
   try {
@@ -40,25 +49,31 @@ function getPrismaClient() {
   }
 }
 
-// Initialize the client - it will read DATABASE_URL when first used
-// In production, don't cache to ensure fresh connection with correct env vars
-let _prisma: PrismaClient | undefined
-
+// Initialize lazily to ensure environment variables are available
+// Use a getter function instead of initializing at module load
 function getPrisma() {
-  // In production, always create a new client to ensure fresh env vars
   if (process.env.NODE_ENV === 'production') {
+    // In production, always create a new client to ensure fresh env vars
     return getPrismaClient()
-  }
-  
-  // In development, cache the client
-  if (globalForPrisma.prisma) {
+  } else {
+    // In development, use globalThis to prevent multiple PrismaClient instances
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = getPrismaClient()
+    }
     return globalForPrisma.prisma
   }
-  
-  const client = getPrismaClient()
-  globalForPrisma.prisma = client
-  return client
 }
 
-export const prisma = getPrisma()
+// Export a proxy that initializes on first access
+// This prevents initialization during build time
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    const client = getPrisma()
+    const value = (client as any)[prop]
+    if (typeof value === 'function') {
+      return value.bind(client)
+    }
+    return value
+  }
+})
 
