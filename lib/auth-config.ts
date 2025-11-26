@@ -1,6 +1,5 @@
 import { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
@@ -18,6 +17,8 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // Import prisma lazily to ensure DATABASE_URL is available
+          const { prisma } = await import('@/lib/db')
           const admin = await prisma.admin.findUnique({
             where: { email: credentials.email },
           })
