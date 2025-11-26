@@ -59,7 +59,14 @@ export async function POST() {
         giver: true,
         receiver: true,
       },
-    })
+    }) as Array<{
+      id: string
+      giverId: string
+      receiverId: string
+      giver: { name: string; email: string | null; phone: string | null }
+      receiver: { name: string }
+      createdAt: Date
+    }>
 
     // Send emails and SMS
     for (const assignment of savedAssignments) {
@@ -73,7 +80,7 @@ export async function POST() {
 
     return NextResponse.json({
       message: 'Assignments generated and notifications sent successfully',
-      assignments: savedAssignments.map((a: typeof savedAssignments[0]) => ({
+      assignments: savedAssignments.map((a) => ({
         giver: a.giver.name,
         receiver: a.receiver.name,
       })),
@@ -100,10 +107,15 @@ export async function GET() {
         receiver: true,
       },
       orderBy: { createdAt: 'desc' },
-    })
+    }) as Array<{
+      id: string
+      giver: { name: string }
+      receiver: { name: string }
+      createdAt: Date
+    }>
 
     return NextResponse.json({
-      assignments: assignments.map((a: typeof assignments[0]) => ({
+      assignments: assignments.map((a) => ({
         id: a.id,
         giver: a.giver.name,
         receiver: a.receiver.name,
