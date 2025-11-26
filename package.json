@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "setup-admin": "tsx scripts/setup-admin.ts",
+    "migrate": "tsx scripts/migrate.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
