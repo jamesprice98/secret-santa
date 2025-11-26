@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
 import { generateAssignments } from '@/lib/assignment'
-import { sendAssignmentEmails, sendAssignmentSMS } from '@/lib/notifications'
+import { sendAssignmentEmails } from '@/lib/notifications'
 
 export async function POST() {
   try {
@@ -67,13 +67,10 @@ export async function POST() {
       createdAt: Date
     }>
 
-    // Send emails and SMS
+    // Send emails
     for (const assignment of savedAssignments) {
       if (assignment.giver.email) {
         await sendAssignmentEmails(assignment.giver.email, assignment.giver.name, assignment.receiver.name)
-      }
-      if (assignment.giver.phone) {
-        await sendAssignmentSMS(assignment.giver.phone, assignment.giver.name, assignment.receiver.name)
       }
     }
 

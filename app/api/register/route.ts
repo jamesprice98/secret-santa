@@ -4,37 +4,34 @@ import { prisma } from '@/lib/db'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, phone } = body
+    const { name, email } = body
 
-    // Validate that at least one contact method is provided
-    if (!name || (!email && !phone)) {
+    // Validate input
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Name and at least one contact method (email or phone) are required' },
+        { error: 'Name and email are required' },
         { status: 400 }
       )
     }
 
-    // Validate email format if provided
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
       )
     }
 
-    // Check if participant already exists (by email or phone)
+    // Check if participant already exists (by email)
     const existing = await prisma.participant.findFirst({
       where: {
-        OR: [
-          ...(email ? [{ email }] : []),
-          ...(phone ? [{ phone }] : []),
-        ],
+        email,
       },
     })
 
     if (existing) {
       return NextResponse.json(
-        { error: 'A participant with this email or phone number already exists' },
+        { error: 'A participant with this email already exists' },
         { status: 409 }
       )
     }
@@ -43,8 +40,7 @@ export async function POST(request: NextRequest) {
     const participant = await prisma.participant.create({
       data: {
         name,
-        email: email || null,
-        phone: phone || null,
+        email,
       },
     })
 

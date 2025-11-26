@@ -172,7 +172,7 @@ export default function AdminDashboard() {
           </div>
           <p className="text-sm text-gray-600">
             Once all participants are registered and spouse relationships are set, click to generate Secret Santa assignments.
-            Notifications will be sent automatically via email and SMS. You can regenerate assignments for testing.
+            Notifications will be sent automatically via email. You can regenerate assignments for testing.
           </p>
         </div>
 
