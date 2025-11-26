@@ -40,18 +40,23 @@ function getPrismaClient() {
   }
 }
 
-// Initialize lazily to ensure environment variables are available
+// Initialize the client - it will read DATABASE_URL when first used
+// In production, don't cache to ensure fresh connection with correct env vars
+let _prisma: PrismaClient | undefined
+
 function getPrisma() {
+  // In production, always create a new client to ensure fresh env vars
+  if (process.env.NODE_ENV === 'production') {
+    return getPrismaClient()
+  }
+  
+  // In development, cache the client
   if (globalForPrisma.prisma) {
     return globalForPrisma.prisma
   }
   
   const client = getPrismaClient()
-  
-  if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = client
-  }
-  
+  globalForPrisma.prisma = client
   return client
 }
 
