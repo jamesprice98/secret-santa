@@ -19,7 +19,7 @@ export async function GET() {
     }>
 
     return NextResponse.json({
-      spousePairs: spousePairs.map((sp) => ({
+      spousePairs: spousePairs.map((sp: typeof spousePairs[0]) => ({
         id: sp.id,
         participant1: {
           id: sp.participant1.id,
