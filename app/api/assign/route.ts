@@ -73,7 +73,7 @@ export async function POST() {
 
     return NextResponse.json({
       message: 'Assignments generated and notifications sent successfully',
-      assignments: savedAssignments.map((a) => ({
+      assignments: savedAssignments.map((a: typeof savedAssignments[0]) => ({
         giver: a.giver.name,
         receiver: a.receiver.name,
       })),
@@ -103,7 +103,7 @@ export async function GET() {
     })
 
     return NextResponse.json({
-      assignments: assignments.map((a) => ({
+      assignments: assignments.map((a: typeof assignments[0]) => ({
         id: a.id,
         giver: a.giver.name,
         receiver: a.receiver.name,
