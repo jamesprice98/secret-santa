@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoadingAssignments, setIsLoadingAssignments] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const fetchAssignments = async () => {
@@ -39,7 +40,12 @@ export default function AdminDashboard() {
   }, [])
 
   const handleGenerateAssignments = async () => {
-    if (!confirm('Are you sure you want to generate assignments? This will send notifications to all participants.')) {
+    const hasExisting = assignments.length > 0
+    const confirmMessage = hasExisting
+      ? 'Are you sure you want to regenerate assignments? This will delete existing assignments and send new notifications to all participants.'
+      : 'Are you sure you want to generate assignments? This will send notifications to all participants.'
+    
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -66,6 +72,37 @@ export default function AdminDashboard() {
       })
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleResetAssignments = async () => {
+    if (!confirm('Are you sure you want to delete all assignments? This will not send any notifications.')) {
+      return
+    }
+
+    setIsResetting(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/assign', {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reset assignments')
+      }
+
+      setMessage({ type: 'success', text: `Successfully deleted ${data.deletedCount} assignment(s).` })
+      await fetchAssignments()
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to reset assignments',
+      })
+    } finally {
+      setIsResetting(false)
     }
   }
 
@@ -114,17 +151,28 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Generate Assignments</h2>
-            <button
-              onClick={handleGenerateAssignments}
-              disabled={isGenerating || assignments.length > 0}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isGenerating ? 'Generating...' : assignments.length > 0 ? 'Already Generated' : 'Generate Assignments'}
-            </button>
+            <div className="flex gap-3">
+              {assignments.length > 0 && (
+                <button
+                  onClick={handleResetAssignments}
+                  disabled={isResetting}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isResetting ? 'Resetting...' : 'Reset Assignments'}
+                </button>
+              )}
+              <button
+                onClick={handleGenerateAssignments}
+                disabled={isGenerating}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isGenerating ? 'Generating...' : assignments.length > 0 ? 'Regenerate Assignments' : 'Generate Assignments'}
+              </button>
+            </div>
           </div>
           <p className="text-sm text-gray-600">
             Once all participants are registered and spouse relationships are set, click to generate Secret Santa assignments.
-            Notifications will be sent automatically via email and SMS.
+            Notifications will be sent automatically via email and SMS. You can regenerate assignments for testing.
           </p>
         </div>
 

@@ -8,13 +8,12 @@ export async function POST() {
   try {
     await requireAdmin()
 
-    // Check if assignments already exist
-    const existingAssignments = await prisma.assignment.findFirst()
-    if (existingAssignments) {
-      return NextResponse.json(
-        { error: 'Assignments have already been generated. Please reset the database to generate new assignments.' },
-        { status: 400 }
-      )
+    // Delete existing assignments if they exist (allow regeneration for testing)
+    // This allows testing by regenerating assignments
+    const existingAssignments = await prisma.assignment.findMany()
+    if (existingAssignments.length > 0) {
+      await prisma.assignment.deleteMany()
+      console.log(`Deleted ${existingAssignments.length} existing assignment(s) before generating new ones`)
     }
 
     // Get all participants
@@ -128,6 +127,28 @@ export async function GET() {
     }
     console.error('Error fetching assignments:', error)
     return NextResponse.json({ error: 'Failed to fetch assignments' }, { status: 500 })
+  }
+}
+
+export async function DELETE() {
+  try {
+    await requireAdmin()
+
+    const deleted = await prisma.assignment.deleteMany()
+    
+    return NextResponse.json({
+      message: `Successfully deleted ${deleted.count} assignment(s)`,
+      deletedCount: deleted.count,
+    })
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    console.error('Error deleting assignments:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete assignments' },
+      { status: 500 }
+    )
   }
 }
 
