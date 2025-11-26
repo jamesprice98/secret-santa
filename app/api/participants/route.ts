@@ -20,7 +20,15 @@ export async function GET() {
           },
         },
       },
-    })
+    }) as Array<{
+      id: string
+      name: string
+      email: string | null
+      phone: string | null
+      createdAt: Date
+      spousePairs1: Array<{ participant2: { name: string } }>
+      spousePairs2: Array<{ participant1: { name: string } }>
+    }>
 
     // Format participants with their spouses
     const formatted = participants.map((p) => {
