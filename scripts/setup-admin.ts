@@ -1,7 +1,7 @@
 import { PrismaClient } from '../generated/prisma-client/client'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({})
 
 async function main() {
   const email = process.env.ADMIN_EMAIL
