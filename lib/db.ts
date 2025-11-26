@@ -7,17 +7,33 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function getPrismaClient() {
-  // Read DATABASE_URL at runtime, not at module load time
-  const connectionString = process.env.DATABASE_URL
+  // Vercel Postgres provides multiple connection strings:
+  // - POSTGRES_URL: Direct connection (best for our adapter)
+  // - POSTGRES_PRISMA_URL: Prisma connection string
+  // - DATABASE_URL: May be Prisma Accelerate URL (not compatible with adapter)
+  
+  // Prefer POSTGRES_URL or POSTGRES_PRISMA_URL over DATABASE_URL
+  // to avoid Prisma Accelerate URLs
+  const connectionString = process.env.POSTGRES_URL || 
+                          process.env.POSTGRES_PRISMA_URL || 
+                          process.env.DATABASE_URL
   
   if (!connectionString) {
     const envKeys = Object.keys(process.env).filter(k => 
       k.includes('DATABASE') || k.includes('POSTGRES') || k.includes('PRISMA')
     )
-    console.error('DATABASE_URL is not set!')
+    console.error('No database connection string found!')
     console.error('Available env vars:', envKeys)
-    console.error('All env vars starting with D:', Object.keys(process.env).filter(k => k.startsWith('D')))
-    throw new Error('DATABASE_URL environment variable is not set')
+    console.error('Looking for: POSTGRES_URL, POSTGRES_PRISMA_URL, or DATABASE_URL')
+    throw new Error('Database connection string environment variable is not set')
+  }
+  
+  // Reject Prisma Accelerate URLs (they start with "prisma+")
+  if (connectionString.startsWith('prisma+')) {
+    console.error('ERROR: Prisma Accelerate URL detected, but we need a direct connection!')
+    console.error('Please use POSTGRES_URL or POSTGRES_PRISMA_URL instead of DATABASE_URL')
+    console.error('Current connection string starts with:', connectionString.substring(0, 50))
+    throw new Error('Prisma Accelerate URLs are not supported. Use POSTGRES_URL or POSTGRES_PRISMA_URL instead.')
   }
   
   // Log for debugging
