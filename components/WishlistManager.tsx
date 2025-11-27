@@ -144,8 +144,11 @@ export default function WishlistManager({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+    <div className="bg-white rounded-xl shadow-2xl p-6 border-4 border-green-200">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-2xl">🎁</span>
+        <h3 className="text-lg font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent">{title}</h3>
+      </div>
       
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-800 border border-red-200 rounded-lg text-sm">
@@ -169,9 +172,9 @@ export default function WishlistManager({
             <button
               onClick={handleAdd}
               disabled={!newIdea.trim() || isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-r from-red-600 to-green-600 text-white rounded-lg font-bold hover:from-red-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transform hover:scale-105 transition-all"
             >
-              Add
+              🎁 Add
             </button>
           </div>
           <p className="mt-1 text-xs text-gray-500">
