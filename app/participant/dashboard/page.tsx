@@ -3,10 +3,13 @@
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import WishlistManager from '@/components/WishlistManager'
 
 interface Assignment {
   receiverName: string
+  receiverId: string
   createdAt: string
+  receiverWishlist?: Array<{ id: string; idea: string }>
 }
 
 export default function ParticipantDashboard() {
@@ -104,7 +107,7 @@ export default function ParticipantDashboard() {
           )}
 
           {assignment ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-green-900 mb-2">
                   🎄 Your Secret Santa Assignment 🎄
@@ -121,6 +124,28 @@ export default function ParticipantDashboard() {
                   Assignment created on {new Date(assignment.createdAt).toLocaleDateString()}
                 </p>
               </div>
+
+              {assignment.receiverWishlist && assignment.receiverWishlist.length > 0 && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-purple-900 mb-4">
+                    🎁 {assignment.receiverName}'s Wishlist
+                  </h3>
+                  <ul className="space-y-2">
+                    {assignment.receiverWishlist.map((item) => (
+                      <li
+                        key={item.id}
+                        className="p-3 bg-white rounded-lg border border-purple-200 text-gray-900"
+                      >
+                        {item.idea}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-sm text-purple-700">
+                    💡 These are ideas from {assignment.receiverName} to help you choose a gift!
+                  </p>
+                </div>
+              )}
+
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
                   💡 <strong>Tip:</strong> Keep this information secret! The magic of Secret Santa is in the surprise.
@@ -137,6 +162,10 @@ export default function ParticipantDashboard() {
               </p>
             </div>
           )}
+        </div>
+
+        <div className="mb-6">
+          <WishlistManager />
         </div>
       </div>
     </div>

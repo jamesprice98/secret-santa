@@ -21,6 +21,7 @@ export async function GET() {
         receiver: {
           select: {
             name: true,
+            id: true,
           },
         },
       },
@@ -33,10 +34,26 @@ export async function GET() {
       return NextResponse.json({ assignment: null })
     }
 
+    // Get the receiver's wishlist
+    const receiverWishlist = await prisma.presentIdea.findMany({
+      where: {
+        participantId: assignment.receiver.id,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        id: true,
+        idea: true,
+      },
+    })
+
     return NextResponse.json({
       assignment: {
         receiverName: assignment.receiver.name,
+        receiverId: assignment.receiver.id,
         createdAt: assignment.createdAt,
+        receiverWishlist: receiverWishlist,
       },
     })
   } catch (error) {

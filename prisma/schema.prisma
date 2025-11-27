@@ -27,6 +27,9 @@ model Participant {
   assignmentsGiven Assignment[] @relation("Giver")
   // Assignments where this person is the receiver
   assignmentsReceived Assignment[] @relation("Receiver")
+  
+  // Present ideas/wishlist
+  presentIdeas PresentIdea[]
 
   @@index([email])
   @@index([phone])
@@ -70,4 +73,16 @@ model Admin {
   createdAt DateTime @default(now())
 
   @@index([email])
+}
+
+model PresentIdea {
+  id            String   @id @default(cuid())
+  participantId String
+  idea          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@index([participantId])
 }
