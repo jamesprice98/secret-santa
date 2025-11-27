@@ -59,3 +59,5 @@ If migrations fail:
 - Check that your database is accessible
 - Ensure the database user has CREATE TABLE permissions
 
+
+

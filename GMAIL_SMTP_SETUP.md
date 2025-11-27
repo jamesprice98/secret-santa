@@ -113,3 +113,5 @@ RESEND_FROM_EMAIL="Secret Santa <noreply@yourdomain.com>"
 - **For family/personal use:** Gmail SMTP is perfect - quick setup, uses your Gmail address
 - **For production/multiple events:** Verify a domain with Resend for better deliverability and professional appearance
 
+
+

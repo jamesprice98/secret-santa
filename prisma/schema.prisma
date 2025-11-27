@@ -15,6 +15,7 @@ model Participant {
   name      String
   email     String?
   phone     String?
+  password  String?  // Hashed password for participant login
   createdAt DateTime @default(now())
 
   // Spouse relationships (as participant1)

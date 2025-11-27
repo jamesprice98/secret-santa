@@ -6,6 +6,8 @@ export default function RegistrationForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    setPassword: false,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -24,6 +26,7 @@ export default function RegistrationForm() {
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email.trim(),
+          password: formData.setPassword ? formData.password : undefined,
         }),
       })
 
@@ -33,8 +36,18 @@ export default function RegistrationForm() {
         throw new Error(data.error || 'Registration failed')
       }
 
-      setMessage({ type: 'success', text: 'Registration successful! You\'re all set!' })
-      setFormData({ name: '', email: '' })
+      if (data.hasPassword) {
+        setMessage({ 
+          type: 'success', 
+          text: 'Registration successful! You can now log in to view your assignment when it\'s ready.' 
+        })
+      } else {
+        setMessage({ 
+          type: 'success', 
+          text: 'Registration successful! You\'re all set! (You can set a password later to view your assignment.)' 
+        })
+      }
+      setFormData({ name: '', email: '', password: '', setPassword: false })
     } catch (error) {
       setMessage({
         type: 'error',
@@ -78,6 +91,37 @@ export default function RegistrationForm() {
           />
         </div>
 
+        <div>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.setPassword}
+              onChange={(e) => setFormData({ ...formData, setPassword: e.target.checked, password: '' })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Set a password to view your assignment later</span>
+          </label>
+        </div>
+
+        {formData.setPassword && (
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              required={formData.setPassword}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="At least 6 characters"
+              minLength={6}
+            />
+            <p className="mt-1 text-xs text-gray-500">You'll use this to log in and view your Secret Santa assignment</p>
+          </div>
+        )}
+
         {message && (
           <div
             className={`p-3 rounded-lg ${
@@ -92,11 +136,18 @@ export default function RegistrationForm() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || (formData.setPassword && formData.password.length < 6)}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Registering...' : 'Register'}
         </button>
+        
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already registered?{' '}
+          <a href="/participant/login" className="text-blue-600 hover:underline">
+            Log in here
+          </a>
+        </p>
       </form>
     </div>
   )

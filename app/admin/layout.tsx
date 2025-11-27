@@ -13,7 +13,7 @@ export default async function AdminLayout({
   // Don't protect the login page
   if (pathname !== '/admin/login') {
     const session = await getSession()
-    if (!session) {
+    if (!session?.user || (session.user as any).role !== 'admin') {
       redirect('/admin/login')
     }
   }

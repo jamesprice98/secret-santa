@@ -4,33 +4,30 @@ import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Admin provider
     CredentialsProvider({
-      name: 'Credentials',
+      id: 'admin',
+      name: 'Admin',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log('Missing credentials')
           return null
         }
 
         try {
-          // Import prisma lazily to ensure DATABASE_URL is available
           const { prisma } = await import('@/lib/db')
           const admin = await prisma.admin.findUnique({
             where: { email: credentials.email },
           })
 
           if (!admin) {
-            console.log('Admin not found:', credentials.email)
             return null
           }
 
           const isValid = await bcrypt.compare(credentials.password, admin.password)
-          console.log('Password check result:', isValid)
-
           if (!isValid) {
             return null
           }
@@ -38,9 +35,50 @@ export const authOptions: NextAuthOptions = {
           return {
             id: admin.id,
             email: admin.email,
+            role: 'admin',
           }
         } catch (error) {
-          console.error('Auth error:', error)
+          console.error('Admin auth error:', error)
+          return null
+        }
+      },
+    }),
+    // Participant provider
+    CredentialsProvider({
+      id: 'participant',
+      name: 'Participant',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        try {
+          const { prisma } = await import('@/lib/db')
+          const participant = await prisma.participant.findFirst({
+            where: { email: credentials.email },
+          })
+
+          if (!participant || !participant.password) {
+            return null
+          }
+
+          const isValid = await bcrypt.compare(credentials.password, participant.password)
+          if (!isValid) {
+            return null
+          }
+
+          return {
+            id: participant.id,
+            email: participant.email,
+            name: participant.name,
+            role: 'participant',
+          }
+        } catch (error) {
+          console.error('Participant auth error:', error)
           return null
         }
       },
@@ -51,6 +89,25 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role
+        token.name = (user as any).name
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role
+        (session.user as any).id = token.sub
+        if (token.name) {
+          (session.user as any).name = token.name
+        }
+      }
+      return session
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
