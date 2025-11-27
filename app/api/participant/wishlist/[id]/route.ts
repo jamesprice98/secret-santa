@@ -5,11 +5,12 @@ import { requireParticipant } from '@/lib/auth'
 // PUT: Update an existing idea
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const participant = await requireParticipant()
     const participantId = (participant as any).id
+    const { id } = await params
 
     const body = await request.json()
     const { idea } = body
@@ -30,7 +31,7 @@ export async function PUT(
 
     // Verify the idea belongs to this participant
     const existing = await prisma.presentIdea.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existing) {
@@ -48,7 +49,7 @@ export async function PUT(
     }
 
     const updated = await prisma.presentIdea.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         idea: idea.trim(),
       },
@@ -70,15 +71,16 @@ export async function PUT(
 // DELETE: Remove an idea from wishlist
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const participant = await requireParticipant()
     const participantId = (participant as any).id
+    const { id } = await params
 
     // Verify the idea belongs to this participant
     const existing = await prisma.presentIdea.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existing) {
@@ -96,7 +98,7 @@ export async function DELETE(
     }
 
     await prisma.presentIdea.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ message: 'Wishlist item deleted successfully' })
