@@ -115,9 +115,9 @@ export default function RegistrationForm() {
         <button
           type="submit"
           disabled={isSubmitting || formData.password.length < 6}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 px-4 rounded-lg font-bold hover:from-red-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg transform hover:scale-105"
         >
-          {isSubmitting ? 'Registering...' : 'Register'}
+          {isSubmitting ? '🎄 Registering...' : '🎁 Register'}
         </button>
         
         <p className="text-center text-sm text-gray-600 mt-4">

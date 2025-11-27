@@ -121,21 +121,24 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-green-50 to-red-50">
+      <div className="bg-gradient-to-r from-red-600 to-green-600 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Secret Santa Admin</h1>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🎅</span>
+              <h1 className="text-2xl font-bold text-white">Secret Santa Admin</h1>
+            </div>
             <div className="flex gap-4">
               <Link
                 href="/admin/spouses"
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-lg hover:bg-white/30 transition-colors"
               >
-                Manage Spouses
+                💑 Manage Spouses
               </Link>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 shadow-md transition-colors"
               >
                 Sign Out
               </button>
@@ -157,25 +160,28 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 border-4 border-green-200">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Generate Assignments</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎄</span>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent">Generate Assignments</h2>
+            </div>
             <div className="flex gap-3">
               {assignments.length > 0 && (
-                <button
-                  onClick={handleResetAssignments}
-                  disabled={isResetting}
-                  className="px-6 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isResetting ? 'Resetting...' : 'Reset Assignments'}
-                </button>
+              <button
+                onClick={handleResetAssignments}
+                disabled={isResetting}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg font-bold hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+              >
+                {isResetting ? '🔄 Resetting...' : '🔄 Reset Assignments'}
+              </button>
               )}
               <button
                 onClick={handleGenerateAssignments}
                 disabled={isGenerating}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-2 bg-gradient-to-r from-red-600 to-green-600 text-white rounded-lg font-bold hover:from-red-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg transform hover:scale-105"
               >
-                {isGenerating ? 'Generating...' : assignments.length > 0 ? 'Regenerate Assignments' : 'Generate Assignments'}
+                {isGenerating ? '🎄 Generating...' : assignments.length > 0 ? '🎁 Regenerate Assignments' : '🎅 Generate Assignments'}
               </button>
             </div>
           </div>
@@ -186,8 +192,11 @@ export default function AdminDashboard() {
         </div>
 
         {assignments.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Assignments (Obfuscated View)</h2>
+          <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 border-4 border-red-200">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">🎄</span>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent">Assignments (Obfuscated View)</h2>
+            </div>
             <p className="text-sm text-gray-600 mb-4">
               Names are obfuscated to prevent spoilers. You can verify that assignments exist and spouse rules are followed.
             </p>

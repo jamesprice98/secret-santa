@@ -81,14 +81,17 @@ export default function ParticipantDashboard() {
   const userName = (session?.user as any)?.name || session?.user?.email
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-green-50 to-red-50">
+      <div className="bg-gradient-to-r from-red-600 to-green-600 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Secret Santa Dashboard</h1>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🎅</span>
+              <h1 className="text-2xl font-bold text-white">Secret Santa Dashboard</h1>
+            </div>
             <button
               onClick={handleSignOut}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+              className="px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 shadow-md transition-colors"
             >
               Sign Out
             </button>
@@ -97,8 +100,13 @@ export default function ParticipantDashboard() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Welcome, {userName}!</h2>
+        <div className="bg-white rounded-xl shadow-2xl p-6 mb-6 border-4 border-green-200">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-3xl">🎄</span>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent">
+              Welcome, {userName}!
+            </h2>
+          </div>
           
           {error && (
             <div className="mb-4 p-4 bg-red-50 text-red-800 border border-red-200 rounded-lg">
@@ -108,15 +116,15 @@ export default function ParticipantDashboard() {
 
           {assignment ? (
             <div className="space-y-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-2">
+              <div className="bg-gradient-to-br from-green-50 to-red-50 border-4 border-green-300 rounded-xl p-6 shadow-lg">
+                <h3 className="text-2xl font-bold text-center text-green-800 mb-4">
                   🎄 Your Secret Santa Assignment 🎄
                 </h3>
-                <div className="bg-white rounded-lg p-4 border-2 border-green-300">
-                  <p className="text-center text-2xl font-bold text-gray-900 mb-2">
-                    You are the Secret Santa for:
+                <div className="bg-white rounded-xl p-6 border-4 border-red-300 shadow-lg">
+                  <p className="text-center text-2xl font-bold text-gray-900 mb-3">
+                    🎁 You are the Secret Santa for: 🎁
                   </p>
-                  <p className="text-center text-3xl font-extrabold text-blue-600">
+                  <p className="text-center text-4xl font-extrabold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent">
                     {assignment.receiverName}
                   </p>
                 </div>
@@ -126,9 +134,9 @@ export default function ParticipantDashboard() {
               </div>
 
               {assignment.receiverWishlist && assignment.receiverWishlist.length > 0 && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-purple-900 mb-4">
-                    🎁 {assignment.receiverName}'s Wishlist
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-4 border-purple-300 rounded-xl p-6 shadow-lg">
+                  <h3 className="text-xl font-bold text-purple-900 mb-4 text-center">
+                    🎁 {assignment.receiverName}'s Wishlist 🎁
                   </h3>
                   <ul className="space-y-2">
                     {assignment.receiverWishlist.map((item) => (

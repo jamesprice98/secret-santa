@@ -39,13 +39,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-green-50 to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-10 left-10 text-3xl animate-bounce">🎄</div>
+      <div className="absolute top-20 right-20 text-2xl animate-pulse">❄️</div>
+      <div className="absolute bottom-20 left-20 text-2xl animate-bounce delay-300">🎁</div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Login</h1>
-          <p className="text-lg text-gray-600">Sign in to manage Secret Santa</p>
+          <div className="text-6xl mb-4">🎅</div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent mb-2">
+            Admin Login
+          </h1>
+          <p className="text-lg text-gray-700 font-medium">Sign in to manage Secret Santa 🎄</p>
         </div>
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-xl shadow-2xl p-8 border-4 border-red-200">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="p-3 rounded-lg bg-red-50 text-red-800 border border-red-200">
@@ -83,9 +91,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 px-4 rounded-lg font-bold hover:from-red-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg transform hover:scale-105"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? '🎄 Signing in...' : '🎁 Sign In'}
             </button>
           </form>
         </div>
