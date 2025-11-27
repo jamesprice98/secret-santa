@@ -13,9 +13,17 @@ interface Assignment {
   createdAt: string
 }
 
+interface Verification {
+  totalAssignments: number
+  uniqueParticipants: number
+  spouseViolations: number
+  allValid: boolean
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const [assignments, setAssignments] = useState<Assignment[]>([])
+  const [verification, setVerification] = useState<Verification | null>(null)
   const [isLoadingAssignments, setIsLoadingAssignments] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
@@ -28,6 +36,7 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error('Failed to fetch assignments')
       const data = await response.json()
       setAssignments(data.assignments || [])
+      setVerification(data.verification || null)
     } catch (err) {
       console.error(err)
     } finally {
@@ -178,7 +187,28 @@ export default function AdminDashboard() {
 
         {assignments.length > 0 && (
           <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Assignments</h2>
+            <h2 className="text-xl font-semibold mb-4">Assignments (Obfuscated View)</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Names are obfuscated to prevent spoilers. You can verify that assignments exist and spouse rules are followed.
+            </p>
+            
+            {verification && (
+              <div className={`mb-4 p-4 rounded-lg border ${
+                verification.allValid 
+                  ? 'bg-green-50 border-green-200 text-green-800' 
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}>
+                <div className="font-semibold mb-2">
+                  {verification.allValid ? '✅ All Assignments Valid' : '⚠️ Spouse Rule Violations Detected'}
+                </div>
+                <div className="text-sm space-y-1">
+                  <div>Total Assignments: {verification.totalAssignments}</div>
+                  <div>Unique Participants: {verification.uniqueParticipants}</div>
+                  <div>Spouse Violations: {verification.spouseViolations}</div>
+                </div>
+              </div>
+            )}
+
             {isLoadingAssignments ? (
               <div className="text-center py-4">Loading assignments...</div>
             ) : (
@@ -195,7 +225,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {assignments.map((assignment) => (
+                    {assignments.map((assignment, index) => (
                       <tr key={assignment.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {assignment.giver}

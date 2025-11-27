@@ -99,24 +99,70 @@ export async function GET() {
 
     const assignments = await prisma.assignment.findMany({
       include: {
-        giver: true,
-        receiver: true,
+        giver: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     }) as Array<{
       id: string
-      giver: { name: string }
-      receiver: { name: string }
+      giver: { id: string; name: string }
+      receiver: { id: string; name: string }
       createdAt: Date
     }>
+
+    // Get all unique participant IDs to create consistent obfuscation
+    const participantIds = new Set<string>()
+    assignments.forEach(a => {
+      participantIds.add(a.giver.id)
+      participantIds.add(a.receiver.id)
+    })
+
+    // Create consistent obfuscation mapping (sorted for consistency)
+    const sortedIds = Array.from(participantIds).sort()
+    const obfuscationMap = new Map<string, string>()
+    sortedIds.forEach((id, index) => {
+      obfuscationMap.set(id, `Participant ${String.fromCharCode(65 + index)}`) // A, B, C, etc.
+    })
+
+    // Get spouse pairs to verify no spouse matches
+    const spousePairs = await prisma.spousePair.findMany({
+      select: {
+        participant1Id: true,
+        participant2Id: true,
+      },
+    })
+
+    // Check if any assignments violate spouse rules
+    const spouseViolations = assignments.filter(a => {
+      return spousePairs.some(sp => 
+        (sp.participant1Id === a.giver.id && sp.participant2Id === a.receiver.id) ||
+        (sp.participant1Id === a.receiver.id && sp.participant2Id === a.giver.id)
+      )
+    })
 
     return NextResponse.json({
       assignments: assignments.map((a) => ({
         id: a.id,
-        giver: a.giver.name,
-        receiver: a.receiver.name,
+        giver: obfuscationMap.get(a.giver.id) || 'Unknown',
+        receiver: obfuscationMap.get(a.receiver.id) || 'Unknown',
         createdAt: a.createdAt,
       })),
+      verification: {
+        totalAssignments: assignments.length,
+        uniqueParticipants: participantIds.size,
+        spouseViolations: spouseViolations.length,
+        allValid: spouseViolations.length === 0,
+      },
     })
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {
