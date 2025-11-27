@@ -8,9 +8,9 @@ export async function POST(request: NextRequest) {
     const { name, email, password } = body
 
     // Validate input
-    if (!name || !email) {
+    if (!name || !email || !password) {
       return NextResponse.json(
-        { error: 'Name and email are required' },
+        { error: 'Name, email, and password are required' },
         { status: 400 }
       )
     }
@@ -19,6 +19,14 @@ export async function POST(request: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
+    // Validate password
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters' },
         { status: 400 }
       )
     }
@@ -37,17 +45,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash password if provided
-    let hashedPassword: string | undefined
-    if (password) {
-      if (password.length < 6) {
-        return NextResponse.json(
-          { error: 'Password must be at least 6 characters' },
-          { status: 400 }
-        )
-      }
-      hashedPassword = await bcrypt.hash(password, 10)
-    }
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create participant
     const participant = await prisma.participant.create({
@@ -60,9 +59,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { 
-        message: 'Registration successful! You can now log in to view your assignment.',
+        message: 'Registration successful! You can now log in to view your assignment and manage your wishlist.',
         participant: { id: participant.id, name: participant.name },
-        hasPassword: !!hashedPassword,
       },
       { status: 201 }
     )
