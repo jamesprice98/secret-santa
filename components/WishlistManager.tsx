@@ -9,18 +9,18 @@ interface WishlistItem {
 }
 
 interface WishlistManagerProps {
-  participantId?: string
+  items?: WishlistItem[]
   readOnly?: boolean
   title?: string
 }
 
 export default function WishlistManager({ 
-  participantId, 
+  items: externalItems,
   readOnly = false,
   title = 'My Wishlist'
 }: WishlistManagerProps) {
-  const [items, setItems] = useState<WishlistItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [items, setItems] = useState<WishlistItem[]>(externalItems || [])
+  const [isLoading, setIsLoading] = useState(!readOnly && !externalItems)
   const [newIdea, setNewIdea] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingText, setEditingText] = useState('')
@@ -28,10 +28,13 @@ export default function WishlistManager({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!readOnly) {
+    if (externalItems) {
+      setItems(externalItems)
+      setIsLoading(false)
+    } else if (!readOnly) {
       fetchWishlist()
     }
-  }, [readOnly])
+  }, [externalItems, readOnly])
 
   const fetchWishlist = async () => {
     try {
