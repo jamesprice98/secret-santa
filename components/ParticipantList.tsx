@@ -37,6 +37,34 @@ export default function ParticipantList() {
     fetchParticipants()
   }, [])
 
+  const handleDelete = async (participantId: string, participantName: string) => {
+    if (!confirm(`Are you sure you want to delete ${participantName}? This will permanently remove them and all their data (assignments, spouse relationships, wishlist). They will be able to re-register.`)) {
+      return
+    }
+
+    setDeletingId(participantId)
+    setError('')
+
+    try {
+      const response = await fetch(`/api/participants/${participantId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete participant')
+      }
+
+      // Remove from local state
+      setParticipants(participants.filter(p => p.id !== participantId))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete participant')
+      console.error(err)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   if (isLoading) {
     return <div className="text-center py-8">Loading participants...</div>
   }
