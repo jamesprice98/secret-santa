@@ -145,6 +145,13 @@ export default function ParticipantDashboard() {
                   </p>
                 </div>
               )}
+              {assignment.receiverWishlist && assignment.receiverWishlist.length === 0 && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-600">
+                    {assignment.receiverName} hasn't added any wishlist items yet.
+                  </p>
+                </div>
+              )}
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
